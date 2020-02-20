@@ -16,7 +16,6 @@ logging.basicConfig(level=log_level, format='[%(asctime)s] %(levelname)s (%(modu
 
 class ScoresHandler:
     def __init__(self, params, files):
-        self.messages = []
         self.files = files
         self.checked_files = [f for f in self.files if allowed_file(f.filename)]
         if self.checked_files:
@@ -46,7 +45,7 @@ class ScoresHandler:
                         flash(f'{db[self.base]["name"]} format detected.', 'primary')
                         
                     else:
-                        logging.debug('Auto-detection unsuccessful')
+                        logging.critical('Auto-detection unsuccessful')
                         flash('Auto-detection failed. Please check input or specify database.', 'danger')
                         self.success = False
             else:
@@ -141,13 +140,9 @@ class ScoresHandler:
             os.unlink(os.path.join(TEMP_DIR, f))
 
     def create_df(self):
-        # TODO: Refactor to different subclasses.
 
         file_error = 'Could not add {} to DataFrame.'
         self.df = pd.DataFrame()
-
-
-        # Special case for Proquest XLS format.
         
         for f in self.file_paths:
             try:
@@ -164,9 +159,8 @@ class ScoresHandler:
                     add_file = pd.read_csv(f, sep=self.sep, encoding=self.enc, index_col=False, usecols=[self.title, self.abstract, self.db_value], quoting=self.quote)
                     self.df = self.df.append(add_file)
             except Exception as error:
-                logging.debug(file_error.format(f))
-                logging.debug(error)
-                self.messages.append(file_error.format(f))
+                logging.critical(file_error.format(f))
+                logging.critical(error)
                 self.success = False
 
     def generate_scores(self):
@@ -248,13 +242,6 @@ class ScoresHandler:
         # Different values:
         # [i.split()[-1] for i in s.split('; [')][0]  
         pass
-
-    def get_messages(self, success):
-        if success:
-            message = 'Files successfully created.'
-        else:
-            message = 'Some error.'
-        return message
 
 def allowed_file(filename):
     return '.' in filename and filename.split('.')[1].lower() in ALLOWED_EXTENSIONS
