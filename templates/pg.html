@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>VOSviewer Scores</title>
+
+	<link rel="stylesheet" href="{{url_for('static', filename='uikit.min.css') }}">
+	<link rel="stylesheet" href="{{url_for('static', filename='styles.css') }}">
+	<script type="text/javascript" src="{{url_for('static', filename='uikit.min.js') }}"></script>
+</head>
+<body>
+	<div class="uk-container" id="main">
+		<div id="header">
+			<h1>VOSviewer Scores</h1>
+			<h4>Generate scores files for VOSviewer.</h4>
+		</div>
+		<div class="uk-grid-divider uk-flex" uk-grid>
+			<div class="uk-width-1@m uk-width-1-2@l">
+				<p>
+					The programme can handle any number of input files from the same search. The file format differs depending on the citation base.
+				</p>
+				<p>
+					When exporting references choose the following settings:
+				</p>
+				<ul>
+					<li>Web of science: Tab-delimited (Win)</li>
+					<li>Scopus: CSV Excel</li>
+					<li>Proquest: XLS</li>
+				</ul>
+				<p>
+					Remember to include title, abstract and the desired scores value (default: source) in the export.
+				</p>
+				<p>
+					RIS and Endnote files are also supported and an experimental auto-detection feature has been added.
+				</p>
+			</div>
+			<div class="uk-width-1@m uk-width-1-2@l">
+				<form class="" id="main-form" name="main-form" action="/" method="POST" enctype="multipart/form-data">
+					<fieldset class="uk-fieldset">
+						<legend class="uk-legend uk-margin">Setup</legend>
+						<div class="uk-form-custom" uk-custom-form="target: true">
+							<input id="input" name="input" type="file" accept=".csv, .ris, .txt, .xls" multiple required>
+							<button class="uk-button uk-button-default">Select files</button>
+							<div id=file-list></div>
+						</div>
+						<div class="uk-margin">
+						<label class="uk-form-label" for="db">Database</label>
+							<select class="uk-select" id="db" name="db">
+								<option value="auto">Auto-detect</option>
+								<option value="proquest">Proquest</option>
+								<option value="ris">RIS/Endnote</option>
+								<option value="scopus">Scopus</option>
+								<option value="wos">Web of Science</option>
+							</select>
+						</div>
+						<div class="uk-margin">
+							<label class="uk-form-label" for="value">Scores value</label>
+							<select class="uk-select" id="value" name="value">
+								<option value="ty">Publication type</option>
+								<option value="py">Publication year</option>
+								<option value="pu">Publisher</option>
+								<option value="so" selected>Source title</option>
+							</select>
+						</div>
+						<ul uk-accordion>
+							<li>
+								<a class="uk-accordion-title" href="#">Settings</a>
+								<div class="uk-accordion-content">
+									<div class="uk-margin">
+										<label class="uk-form-label" for="output-name">Output name</label>
+										<input class="uk-input" id="output-name" name="output-name" type="text" placeholder="text_data">
+									</div>
+									<div class="uk-margin">
+										<div>Use existing corpus file?</div>
+										<label class="uk-form-label" for="corpus-yes" class="pure-radio">
+											<input class="uk-radio" id="corpus-yes" type="radio" name="corpus" value="yes">
+											Yes
+										</label>
+
+										<label class="uk-form-label" for="corpus-no" class="pure-radio">
+											<input class="uk-radio" id="corpus-no" type="radio" name="corpus" value="no" checked>
+											No
+										</label>
+									</div>
+									<div class="uk-margin">
+										<div>Group scores by interval?</div>
+										<label class="uk-form-label" for="buckets-yes" class="pure-radio">
+											<input class="uk-radio" id="buckets-yes" type="radio" name="buckets" value="yes" onclick="toggleInterval(true)">
+											Yes
+										</label>
+
+										<label class="uk-form-label" for="buckets-no" class="pure-radio">
+											<input class="uk-radio" id="buckets-no" type="radio" name="buckets" value="no" checked onclick="toggleInterval(false)">
+											No
+										</label>
+										<div class="uk-margin">
+											<label class="uk-form-label" for="interval-range">Interval: <span id="interval-display">2</span></label>
+
+											<input class="uk-range" id="interval-range" name="interval-range" type="range" min="2" max="10" value="2" oninput="updateInterval()" disabled=true>
+										</div>
+									</div>
+								</div>
+							</li>
+						</ul>
+						<div class="uk-margin">
+							<button type="submit" class="uk-button uk-button-primary">Run</button>
+							<button type="reset" class="uk-button" id="reset-form">Reset</button>
+						</div>
+					</fieldset>
+				</form>
+			</div>
+
+			{% with messages = get_flashed_messages(with_categories=true) %}
+			  {% if messages %}
+			    {% for category, message in messages %}
+				  	<div class="uk-width-1">
+						<div class="uk-alert-{{ category }}" uk-alert>
+							<a class="uk-alert-close" uk-close></a>
+							<ul class=flashes>
+								
+									<li>{{ message }}</li>
+								
+							</ul>
+						</div>
+					</div>
+				{% endfor %}
+			  {% endif %}
+			{% endwith %}
+
+		</div>
+	</div>
+
+	<script type="text/javascript" src="{{url_for('static', filename='scripts.js') }}"></script>
+</body>
+</html>
