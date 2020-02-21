@@ -15,6 +15,21 @@ log_level = logging.DEBUG
 logging.basicConfig(level=log_level, format='[%(asctime)s] %(levelname)s (%(module)s): %(message)s')
 
 class ScoresHandler:
+
+    # Generate output folder on first use.
+    if not os.path.exists(OUTPUT_PATH):
+        os.makedirs(OUTPUT_PATH)
+        logging.debug('Output path created.')
+    else:
+        logging.debug('Output path identified.')
+
+    # Generate folder for temporary files on first use.
+    if not os.path.exists(TEMP_DIR):
+        os.makedirs(TEMP_DIR)
+        logging.debug('Temp folder created.')
+    else:
+        logging.debug('Temp folder identified.')
+        
     def __init__(self, params, files):
         self.files = files
         self.checked_files = [f for f in self.files if allowed_file(f.filename)]
@@ -65,20 +80,6 @@ class ScoresHandler:
             self.abstract = db[self.base]['ab']
             self.quote = db[self.base]['quote']
             self.db_value = db[self.base][self.value]
-
-            # Generate output folder on first use.
-            if not os.path.exists(OUTPUT_PATH):
-                os.makedirs(OUTPUT_PATH)
-                logging.debug('Output path created.')
-            else:
-                logging.debug('Output path identified.')
-
-            # Generate folder for temporary files on first use.
-            if not os.path.exists(TEMP_DIR):
-                os.makedirs(TEMP_DIR)
-                logging.debug('Temp folder created.')
-            else:
-                logging.debug('Temp folder identified.')
 
             # Generate output file names
             if params['output-name']:
