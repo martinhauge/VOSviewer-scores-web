@@ -25,7 +25,8 @@ db = {
             'so': 'Source title',
             'py': 'Year',
             'pu': 'Publisher',
-            'ty': 'Document Type'
+            'ty': 'Document Type',
+            'at': 'Access Type'
             },
     'proquest': {
             'name': 'ProQuest',

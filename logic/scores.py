@@ -73,24 +73,29 @@ class ScoresHandler:
             else:
                 self.buckets = False
 
-            # Setup database parameters
-            self.sep = db[self.base]['sep']
-            self.enc = db[self.base]['enc']
-            self.title = db[self.base]['ti']
-            self.abstract = db[self.base]['ab']
-            self.quote = db[self.base]['quote']
-            self.db_value = db[self.base][self.value]
+            if self.value in db[self.base].keys():
+                # Setup database parameters
+                self.sep = db[self.base]['sep']
+                self.enc = db[self.base]['enc']
+                self.title = db[self.base]['ti']
+                self.abstract = db[self.base]['ab']
+                self.quote = db[self.base]['quote']
+                self.db_value = db[self.base][self.value]
 
-            # Generate output file names
-            if params['output-name']:
-                self.out_name = os.path.join(OUTPUT_PATH, params['output-name']) # generate_filename()
+                # Generate output file names
+                if params['output-name']:
+                    self.out_name = os.path.join(OUTPUT_PATH, params['output-name']) # generate_filename()
+                else:
+                    self.out_name = os.path.join(OUTPUT_PATH, 'text_data') # generate_filename()
+
+                self.scores_name = generate_filename(self.out_name, suffix=f'_scores_{self.value}')
+
+                if not self.skip_corpus:
+                    self.corpus_name = generate_filename(self.out_name, '_corpus')
             else:
-                self.out_name = os.path.join(OUTPUT_PATH, 'text_data') # generate_filename()
+                self.success = False
+                flash(f'This value is not supported for {db[self.base]["name"]} files. Please try another value.', 'warning')
 
-            self.scores_name = generate_filename(self.out_name, suffix=f'_scores_{self.value}')
-
-            if not self.skip_corpus:
-                self.corpus_name = generate_filename(self.out_name, '_corpus')
 
     def __repr__(self):
         return f'ScoresHandler({self.params}, {self.files})'
