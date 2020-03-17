@@ -14,6 +14,9 @@ log_level = logging.DEBUG
 
 logging.basicConfig(level=log_level, format='[%(asctime)s] %(levelname)s (%(module)s): %(message)s')
 
+# Filter db dictionary to only include scores values for front-end validation.
+scores_dict = {base: [key for key in db[base]['values']] for base in db}
+
 class ScoresHandler:
 
     # Generate output folder on first use.
@@ -73,14 +76,14 @@ class ScoresHandler:
             else:
                 self.buckets = False
 
-            if self.value in db[self.base].keys():
+            if self.value in db[self.base]['values'].keys():
                 # Setup database parameters
                 self.sep = db[self.base]['sep']
                 self.enc = db[self.base]['enc']
                 self.title = db[self.base]['ti']
                 self.abstract = db[self.base]['ab']
                 self.quote = db[self.base]['quote']
-                self.db_value = db[self.base][self.value]
+                self.db_value = db[self.base]['values'][self.value]
 
                 # Generate output file names
                 if params['output-name']:
