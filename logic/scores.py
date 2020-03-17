@@ -44,7 +44,10 @@ class ScoresHandler:
             flash('No valid files submitted.', 'danger')
             self.success = False
 
-        self.value = params['value']
+        if 'value' in params:
+            self.value = params['value']
+        else:
+            self.value = None
         
         if params['corpus'] == 'yes':
             self.skip_corpus = True
@@ -102,32 +105,6 @@ class ScoresHandler:
 
     def __repr__(self):
         return f'ScoresHandler({self.params}, {self.files})'
-
-    def summary(self):
-        # Print of variables for debugging purposes
-        print('Files:')
-        print(self.files)
-        print('Allowed files:')
-        print(self.checked_files)
-        print('Value:')
-        print(self.value)
-        print('Output name:')
-        print(self.out_name)
-        print('DB:')
-        print(self.base)
-        if self.buckets:
-            print('Interval:')
-            print(self.interval)
-        print('Separator:')
-        print(self.sep)
-        print('Encoding:')
-        print(self.enc)
-        print('Title:')
-        print(self.title)
-        print('DB Value:')
-        print(self.db_value)
-        print('File Paths:')
-        print(self.file_paths)
 
     def save_input_files(self):
         if self.files[0].filename == '':
