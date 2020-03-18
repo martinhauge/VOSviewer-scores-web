@@ -152,11 +152,11 @@ class ScoresHandler:
     def generate_scores(self):
         # Check for intervals.
         if self.buckets:
-            if self.value == 'py':
+            if self.value in ['py', 'nc']:
                 self.df[self.db_value] = self.generate_buckets()
             else:
                 logging.warning(f'Intervals unavailable for {self.value}. Creating standard scores file.')
-                flash('Intervals can only be applied to publication year. Original scores value used.', 'warning')
+                flash('Intervals can only be applied to publication year and number of citations. Original scores value used.', 'warning')
         
         # Create list of unique values.
         values_list = self.df[self.db_value].fillna('N/A')

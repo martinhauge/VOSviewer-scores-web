@@ -14,7 +14,9 @@ db = {
                         'so': 'SO',
                         'py': 'PY',
                         'pu': 'PU',
-                        'ty': 'DT'
+                        'ty': 'DT',
+                        'at': 'OA',
+                        'nc': 'TC'
                         }
             },
     'scopus': {
@@ -29,7 +31,8 @@ db = {
                         'py': 'Year',
                         'pu': 'Publisher',
                         'ty': 'Document Type',
-                        'at': 'Access Type'
+                        'at': 'Access Type',
+                        'nc': 'Cited by'
                         }
             },
     'proquest': {

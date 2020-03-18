@@ -5,11 +5,11 @@ function updateInterval() {
 		};
 
 
-// Enable interval slider when radio button is selected and change scores value to Publication year.
+// Enable interval slider when radio button is selected (and change scores value to Publication year - suspended with the addition of other numeric scores values).
 function toggleInterval(flag) {
 	if (flag) {
 		document.getElementById("interval-range").removeAttribute("disabled");
-		document.getElementById("value").value = "py";
+		// document.getElementById("value").value = "py";
 	} else {
 		document.getElementById("interval-range").setAttribute("disabled", "true");
 	}
