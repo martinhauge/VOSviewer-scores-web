@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, flash, jsonify
+from flask import Flask, render_template, request, flash
 from logic.scores import ScoresHandler, scores_dict
 
 app = Flask(__name__)
@@ -20,6 +20,7 @@ def main():
         if data.success:
             data.generate_scores()
             data.save_output_files()
+            data.generate_summary()
         else:
             flash('Could not generate DataFrame. Make sure selected database matches input file(s).', 'danger')
 
