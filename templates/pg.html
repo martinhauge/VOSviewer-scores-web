@@ -116,8 +116,10 @@
 			    {% for category, message in messages %}
 				  	<div class="uk-width-1">
 						<div class="uk-alert-{{ category }}" uk-alert>
-							<a class="uk-alert-close" uk-close></a>
-							<ul class=flashes>
+							{% if category != 'message' %}
+								<a class="uk-alert-close" uk-close></a>
+							{% endif %}
+							<ul class="flashes" style="list-style-type: none;">
 								
 									<li>{{ message }}</li>
 								
