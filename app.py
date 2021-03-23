@@ -1,9 +1,8 @@
 from flask import Flask, render_template, request, flash
 from logic.scores import ScoresHandler
-import os
 
 app = Flask(__name__)
-app.secret_key = os.urandom(16)
+app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
 
 @app.route('/', methods=['GET', 'POST'])
 def main():
