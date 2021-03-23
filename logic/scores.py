@@ -4,15 +4,19 @@ import logging
 import pandas as pd
 from logic.reftypes import db
 from logic.ris import ris_df, ris_detect
-from flask import flash
+from flask import flash, Markup
 
 ALLOWED_EXTENSIONS = ['csv', 'txt', 'xls']
 TEMP_DIR = 'temp'
 OUTPUT_PATH = os.path.join('data', 'output')
+SUMMARY_LEN = 10
 
 log_level = logging.DEBUG
 
 logging.basicConfig(level=log_level, format='[%(asctime)s] %(levelname)s (%(module)s): %(message)s')
+
+# Filter db dictionary to only include scores values for front-end validation.
+scores_dict = {base: [key for key in db[base]['values']] for base in db}
 
 class ScoresHandler:
 
@@ -41,7 +45,10 @@ class ScoresHandler:
             flash('No valid files submitted.', 'danger')
             self.success = False
 
-        self.value = params['value']
+        if 'value' in params:
+            self.value = params['value']
+        else:
+            self.value = None
         
         if params['corpus'] == 'yes':
             self.skip_corpus = True
@@ -73,53 +80,32 @@ class ScoresHandler:
             else:
                 self.buckets = False
 
-            # Setup database parameters
-            self.sep = db[self.base]['sep']
-            self.enc = db[self.base]['enc']
-            self.title = db[self.base]['ti']
-            self.abstract = db[self.base]['ab']
-            self.quote = db[self.base]['quote']
-            self.db_value = db[self.base][self.value]
+            if self.value in db[self.base]['values'].keys():
+                # Setup database parameters
+                self.sep = db[self.base]['sep']
+                self.enc = db[self.base]['enc']
+                self.title = db[self.base]['ti']
+                self.abstract = db[self.base]['ab']
+                self.quote = db[self.base]['quote']
+                self.db_value = db[self.base]['values'][self.value]
 
-            # Generate output file names
-            if params['output-name']:
-                self.out_name = os.path.join(OUTPUT_PATH, params['output-name']) # generate_filename()
+                # Generate output file names
+                if params['output-name']:
+                    self.out_name = os.path.join(OUTPUT_PATH, params['output-name']) # generate_filename()
+                else:
+                    self.out_name = os.path.join(OUTPUT_PATH, 'text_data') # generate_filename()
+
+                self.scores_name = generate_filename(self.out_name, suffix=f'_scores_{self.value}')
+
+                if not self.skip_corpus:
+                    self.corpus_name = generate_filename(self.out_name, '_corpus')
             else:
-                self.out_name = os.path.join(OUTPUT_PATH, 'text_data') # generate_filename()
+                self.success = False
+                flash(f'This value is not supported for {db[self.base]["name"]} files. Please try another value.', 'warning')
 
-            self.scores_name = generate_filename(self.out_name, suffix=f'_scores_{self.value}')
-
-            if not self.skip_corpus:
-                self.corpus_name = generate_filename(self.out_name, '_corpus')
 
     def __repr__(self):
         return f'ScoresHandler({self.params}, {self.files})'
-
-    def summary(self):
-        # Print of variables for debugging purposes
-        print('Files:')
-        print(self.files)
-        print('Allowed files:')
-        print(self.checked_files)
-        print('Value:')
-        print(self.value)
-        print('Output name:')
-        print(self.out_name)
-        print('DB:')
-        print(self.base)
-        if self.buckets:
-            print('Interval:')
-            print(self.interval)
-        print('Separator:')
-        print(self.sep)
-        print('Encoding:')
-        print(self.enc)
-        print('Title:')
-        print(self.title)
-        print('DB Value:')
-        print(self.db_value)
-        print('File Paths:')
-        print(self.file_paths)
 
     def save_input_files(self):
         if self.files[0].filename == '':
@@ -167,12 +153,18 @@ class ScoresHandler:
     def generate_scores(self):
         # Check for intervals.
         if self.buckets:
-            if self.value == 'py':
+            if self.value in ['py', 'nc']:
                 self.df[self.db_value] = self.generate_buckets()
             else:
                 logging.warning(f'Intervals unavailable for {self.value}. Creating standard scores file.')
-                flash('Intervals can only be applied to publication year. Original scores value used.', 'warning')
+                flash('Intervals can only be applied to publication year and number of citations. Original scores value used.', 'warning')
         
+        # Count N/A values for summary.
+        self.values_na = self.df[self.db_value].isna().sum()
+
+        # Count N/A abstracts for summary
+        self.abstracts_na = self.df[db[self.base]['ab']].isna().sum()
+
         # Create list of unique values.
         values_list = self.df[self.db_value].fillna('N/A')
         values_list.reset_index(drop=True, inplace=True)
@@ -205,6 +197,8 @@ class ScoresHandler:
             flash(f'Scores file saved as {self.scores_name}.', 'success')
 
         if not self.skip_corpus:
+
+            # Save titles and abstracts to new DataFrame
             titles = self.df[db[self.base]['ti']]
             abstracts = self.df[db[self.base]['ab']].fillna('-')
             self.corpus_df = pd.DataFrame(titles + ' ' + abstracts)
@@ -244,9 +238,42 @@ class ScoresHandler:
         # [i.split()[-1] for i in s.split('; [')][0]  
         pass
 
+    def generate_summary(self):
+        # Open tags for summary.
+        summary_str = '<ul uk-accordion><li><a class="uk-accordion-title" href="#">Summary</a><div class="uk-accordion-content"><ul>'
+        
+        summary_str += f'<li>Number of scores: {len(self.scores_df.columns)}</li>'
+        summary_str += f'<li>Number of references: {len(self.scores_df)}</li>'
+        values_pct = '{:.2%}'.format(self.values_na / len(self.scores_df))
+        summary_str += f'<li>Scores value not available: {self.values_na} ({values_pct})</li>'
+        if not self.skip_corpus:
+            abstract_pct = '{:.2%}'.format(self.abstracts_na / len(self.scores_df))
+            summary_str += f'<li>Abstract not available: {self.abstracts_na} ({abstract_pct})</li>'
+        
+        # Open tags for list of values.
+        summary_str += '<li><div>Top scores values:</div><ol>'
+        
+        values_distribution = self.scores_df.sum().sort_values(ascending=False).head(SUMMARY_LEN)
+        for index, count in values_distribution.items():
+            scores_pct = '{:.2%}'.format(count / len(self.scores_df))
+            summary_str += f'<li>{clean_name(index)}: {count} ({scores_pct})'
+
+        # Closing tags for list of values.
+        summary_str += '</ol></li>'
+
+        if len(self.scores_df.sum()) > SUMMARY_LEN:
+            summary_str += f'<div><i>... and {len(self.scores_df.sum()) - SUMMARY_LEN} more.</i></div>'
+        
+        # Closing tags summary.
+        summary_str += '</ul></div></li></ul>'
+
+        flash(Markup(summary_str))
+
 def allowed_file(filename):
     return '.' in filename and filename.split('.')[1].lower() in ALLOWED_EXTENSIONS
 
+def clean_name(name):
+    return name.replace('score<', '').replace('>', '')
 
 def generate_filename(file_name, suffix='', digits=2, extension='txt'):
     """Generate unique file name by incrementing number suffix."""

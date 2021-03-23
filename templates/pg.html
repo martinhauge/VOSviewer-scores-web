@@ -55,6 +55,8 @@
 						<div class="uk-margin">
 							<label class="uk-form-label" for="value">Scores value</label>
 							<select class="uk-select" id="value" name="value">
+								<option value="at">Access type</option>
+								<option value="nc">Number of citations</option>
 								<option value="ty">Publication type</option>
 								<option value="py">Publication year</option>
 								<option value="pu">Publisher</option>
@@ -114,8 +116,10 @@
 			    {% for category, message in messages %}
 				  	<div class="uk-width-1">
 						<div class="uk-alert-{{ category }}" uk-alert>
-							<a class="uk-alert-close" uk-close></a>
-							<ul class=flashes>
+							{% if category != 'message' %}
+								<a class="uk-alert-close" uk-close></a>
+							{% endif %}
+							<ul class="flashes" style="list-style-type: none;">
 								
 									<li>{{ message }}</li>
 								
@@ -128,7 +132,10 @@
 
 		</div>
 	</div>
-
+	<script type="text/javascript">
+		scores_dict = {{scores|tojson}};
+	</script>
 	<script type="text/javascript" src="{{url_for('static', filename='scripts.js') }}"></script>
+	
 </body>
 </html>

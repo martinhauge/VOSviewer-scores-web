@@ -4,15 +4,17 @@ function updateInterval() {
 			document.getElementById("interval-display").innerHTML = val;
 		};
 
-// Enable interval slider when radio button is selected and change scores value to Publication year.
+
+// Enable interval slider when radio button is selected (and change scores value to Publication year - suspended with the addition of other numeric scores values).
 function toggleInterval(flag) {
 	if (flag) {
 		document.getElementById("interval-range").removeAttribute("disabled");
-		document.getElementById("value").value = "py";
+		// document.getElementById("value").value = "py";
 	} else {
 		document.getElementById("interval-range").setAttribute("disabled", "true");
 	}
 };
+
 
 // Display list of selected filenames below upload button.
 function showFileName(event) {
@@ -40,3 +42,25 @@ var formReset = document.getElementById('reset-form');
 
 fileInput.addEventListener('change', showFileName);
 formReset.addEventListener('click', clearFileName);
+
+
+// Update list of scores values based on availability
+
+var database = document.getElementById('db');
+var scoresValues = document.getElementById('value');
+
+function updateAvailability() {
+	for (let i = 0; i < scoresValues.length; i++) {
+		if (!scores_dict[this.value]) {
+			scoresValues[i].removeAttribute('disabled');
+
+		} else if (scores_dict[this.value].includes(scoresValues[i].value)) {
+			scoresValues[i].removeAttribute('disabled');
+
+		} else {
+			scoresValues[i].setAttribute('disabled', 'disabled');
+		};
+	};
+};
+
+database.addEventListener('change', updateAvailability);

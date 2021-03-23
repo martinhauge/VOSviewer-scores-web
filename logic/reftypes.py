@@ -10,10 +10,14 @@ db = {
             'quote': csv.QUOTE_NONE,
             'ti': 'TI',
             'ab': 'AB',
-            'so': 'SO',
-            'py': 'PY',
-            'pu': 'PU',
-            'ty': 'DT'
+            'values': {
+                        'so': 'SO',
+                        'py': 'PY',
+                        'pu': 'PU',
+                        'ty': 'DT',
+                        'at': 'OA',
+                        'nc': 'TC'
+                        }
             },
     'scopus': {
             'name': 'Scopus',
@@ -22,10 +26,14 @@ db = {
             'quote': csv.QUOTE_ALL,
             'ti': 'Title',
             'ab': 'Abstract',
-            'so': 'Source title',
-            'py': 'Year',
-            'pu': 'Publisher',
-            'ty': 'Document Type'
+            'values': {
+                        'so': 'Source title',
+                        'py': 'Year',
+                        'pu': 'Publisher',
+                        'ty': 'Document Type',
+                        'at': 'Access Type',
+                        'nc': 'Cited by'
+                        }
             },
     'proquest': {
             'name': 'ProQuest',
@@ -34,10 +42,12 @@ db = {
             'quote': csv.QUOTE_ALL,
             'ti': 'Title',
             'ab': 'Abstract',
-            'so': 'pubtitle',
-            'py': 'year',
-            'pu': 'publisher',
-            'ty': 'ArticleType'
+            'values': {
+                        'so': 'pubtitle',
+                        'py': 'year',
+                        'pu': 'publisher',
+                        'ty': 'ArticleType'
+                        }
             },
     'ris': {
             'name': 'RIS/Endnote',
@@ -46,9 +56,10 @@ db = {
             'quote': csv.QUOTE_ALL,
             'ti': 'title',
             'ab': 'abstract',
-            'so': 'source',
-            'py': 'year',
-            'pu': None,
-            'ty': 'type'
+            'values': {
+                        'so': 'source',
+                        'py': 'year',
+                        'ty': 'type'
+                        }
             }
     }
